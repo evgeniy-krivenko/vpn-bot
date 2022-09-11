@@ -1,6 +1,6 @@
-package service
+package entity
 
-type StartDto struct {
+type User struct {
 	UserId    int64
 	Username  string
 	FirstName string

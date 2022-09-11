@@ -1,9 +1,12 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/evgeniy-krivenko/particius-vpn-bot/entity"
+	"github.com/jmoiron/sqlx"
+)
 
 type User interface {
-	GetUserById()
+	GetUserById(id int) (*entity.User, error)
 }
 
 type Repository struct {
@@ -11,5 +14,7 @@ type Repository struct {
 }
 
 func New(db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		User: NewUserRepository(db),
+	}
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/evgeniy-krivenko/particius-vpn-bot/entity"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/repository"
 )
 
@@ -14,7 +15,7 @@ func NewService(r *repository.Repository) *Service {
 }
 
 // Start получить данные о юзере, которые мы сохраним в базе
-func (s *Service) Start(ctx context.Context, dto StartDto) string {
+func (s *Service) Start(ctx context.Context, dto entity.User) string {
 	fmt.Printf("Chat ID: %d\n", dto.ChatId)
 	fmt.Printf("FirstNane: %s\n", dto.FirstName)
 	fmt.Printf("UserId: %d\n", dto.UserId)

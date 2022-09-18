@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/handler"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/repository"
-	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/service"
+	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/services"
+	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/usecases"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/pkg/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
@@ -49,10 +50,10 @@ func main() {
 			logrus.Fatalf("error close db: %s", err.Error())
 		}
 	}()
-
+	svs := services.New()
 	repos := repository.New(db)
-	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
+	usecases := usecases.NewUseCase(repos)
+	handlers := handler.NewHandler(usecases, svs)
 	handlers.InitHandlers()
 
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_API_KEY"))

@@ -1,20 +1,18 @@
 package repository
 
 import (
-	"github.com/evgeniy-krivenko/particius-vpn-bot/entity"
+	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/usecases"
 	"github.com/jmoiron/sqlx"
 )
 
-type User interface {
-	GetUserById(id int) (*entity.User, error)
-}
-
 type Repository struct {
-	User
+	usecases.UserRepository
+	usecases.TextRepository
 }
 
-func New(db *sqlx.DB) *Repository {
+func New(db *sqlx.DB) usecases.Repository {
 	return &Repository{
-		User: NewUserRepository(db),
+		UserRepository: NewUserRepository(db),
+		TextRepository: NewTextRepository(db),
 	}
 }

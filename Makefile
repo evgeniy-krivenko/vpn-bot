@@ -17,3 +17,6 @@ create-migration:
 
 migration-up:
 	@migrate -path ./migrations -database $(DB_STRING) up
+
+migration-down:
+	@migrate -path ./migrations -database $(DB_STRING) down $(n)

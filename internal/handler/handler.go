@@ -2,32 +2,23 @@ package handler
 
 import (
 	"context"
-	"fmt"
-	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/service"
-	"github.com/evgeniy-krivenko/particius-vpn-bot/pkg/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strings"
 )
 
-type CommandHandlers map[string]func(ctx context.Context, msg *tgbotapi.Message)
-
-type Service interface {
-	Start(ctx context.Context, dto service.StartDto) string
-}
+type CommandOrMsgHandlers map[string]func(ctx context.Context, msg *tgbotapi.Message)
+type CallbackQueryHandlers map[string]func(ctx context.Context, cq *tgbotapi.CallbackQuery)
 
 type Handler struct {
-	commandHandlers CommandHandlers
-	service         Service
+	commandHandlers       CommandOrMsgHandlers
+	messageHandlers       CommandOrMsgHandlers
+	callbackQueryHandlers CallbackQueryHandlers
+	useCases              UseCase
+	services              Service
 }
 
-func NewHandler(service Service) *Handler {
-	return &Handler{service: service}
-}
-
-func (h *Handler) InitHandlers() {
-	ch := CommandHandlers{
-		"start": h.Start,
-	}
-	h.commandHandlers = ch
+func NewHandler(uc UseCase, sv Service) *Handler {
+	return &Handler{useCases: uc, services: sv}
 }
 
 func (h *Handler) HandleCommand(ctx context.Context, msg *tgbotapi.Message) {
@@ -36,11 +27,40 @@ func (h *Handler) HandleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	}
 }
 
-func (h *Handler) HandleMessage(ctx context.Context, message *tgbotapi.Message) {
-	b, err := telegram.BotFromCtx(ctx)
-	if err != nil {
-		fmt.Printf(err.Error())
+func (h *Handler) HandleMessage(ctx context.Context, msg *tgbotapi.Message) {
+	if cb, ok := h.messageHandlers[msg.Text]; ok {
+		go cb(ctx, msg)
 	}
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Пожалуйста, введите команду")
-	b.Bot.Send(msg)
+}
+
+func (h *Handler) HandleCallbackQuery(ctx context.Context, msg *tgbotapi.Message, cq *tgbotapi.CallbackQuery) {
+	var pattern string
+	splitData := strings.Split(cq.Data, ":")
+
+	if len(splitData) > 1 {
+		pattern = splitData[0]
+		ctx = context.WithValue(ctx, "queryPayload", splitData[1])
+	} else {
+		pattern = cq.Data
+	}
+
+	if cb, ok := h.callbackQueryHandlers[pattern]; ok {
+		go cb(ctx, cq)
+	}
+}
+
+// InitHandlers define handlers here
+func (h *Handler) InitHandlers() {
+	h.commandHandlers = CommandOrMsgHandlers{
+		"start": h.Start,
+	}
+	h.messageHandlers = CommandOrMsgHandlers{
+		getConfig:    h.GetConfig,
+		checkConfigs: h.CheckConfigs,
+	}
+
+	h.callbackQueryHandlers = CallbackQueryHandlers{
+		"terms":           h.Terms,
+		"terms-confirmed": h.TermsConfirmed,
+	}
 }

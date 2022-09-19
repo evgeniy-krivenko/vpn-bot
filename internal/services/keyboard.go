@@ -58,11 +58,11 @@ var inlineMap = InlineKeyboards{
 	),
 }
 
-func (s *Service) GetInlineKeyboard(key string) (tgbotapi.InlineKeyboardMarkup, error) {
+func (s *Service) GetInlineKeyboard(key string) (*tgbotapi.InlineKeyboardMarkup, error) {
 	kb, ok := inlineMap[key]
 	if !ok {
-		return tgbotapi.NewInlineKeyboardMarkup(), errors.New("wrong inline keyboard key")
+		return nil, errors.New("wrong inline keyboard key")
 	}
 
-	return kb, nil
+	return &kb, nil
 }

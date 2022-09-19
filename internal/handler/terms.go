@@ -37,7 +37,7 @@ func (h *Handler) Terms(ctx context.Context, cq *tgbotapi.CallbackQuery) {
 		return
 	}
 
-	newMsg = tgbotapi.NewEditMessageTextAndMarkup(cq.Message.Chat.ID, cq.Message.MessageID, resp.Msg, kb)
+	newMsg = tgbotapi.NewEditMessageTextAndMarkup(cq.Message.Chat.ID, cq.Message.MessageID, resp.Msg, *kb)
 	newMsg.ParseMode = "MarkdownV2"
 	b.Bot.Send(newMsg)
 }

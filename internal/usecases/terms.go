@@ -40,5 +40,5 @@ func (c *TermsUseCase) TermsConfirmed(ctx context.Context, userId int) (*Respons
 	}
 
 	// TODO - перемесить текст в бд
-	return &Response{Msg: "Создать или проверить подключения можно через основное меню    👇", KeyboardKey: ""}, nil
+	return &Response{Msg: MainMenuText, KeyboardKey: ""}, nil
 }

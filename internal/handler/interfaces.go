@@ -8,13 +8,13 @@ import (
 )
 
 type UseCase interface {
-	Start(ctx context.Context, dto entity.User) (*usecases.Response, error)
+	Start(ctx context.Context, dto *entity.User) (*usecases.Response, error)
 	Terms(ctx context.Context, id int) (*usecases.Response, error)
 	TermsConfirmed(ctx context.Context, userId int) (*usecases.Response, error)
 }
 
 type KeyboardService interface {
-	GetInlineKeyboard(key string) (tgbotapi.InlineKeyboardMarkup, error)
+	GetInlineKeyboard(key string) (*tgbotapi.InlineKeyboardMarkup, error)
 }
 
 type Service interface {

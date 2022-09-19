@@ -10,7 +10,7 @@ import (
 func (h *Handler) Start(ctx context.Context, msg *tgbotapi.Message) {
 	b, _ := telegram.BotFromCtx(ctx)
 
-	response, err := h.useCases.Start(ctx, entity.User{
+	response, err := h.useCases.Start(ctx, &entity.User{
 		ChatId:    msg.Chat.ID,
 		UserId:    msg.From.ID,
 		FirstName: msg.From.FirstName,
@@ -19,21 +19,21 @@ func (h *Handler) Start(ctx context.Context, msg *tgbotapi.Message) {
 
 	if err != nil {
 		// logging
-		resp := "Что-то пошло не так, попробуйте написать позже"
+		resp := "Что\\-то пошло не так, попробуйте написать позже"
 		m := tgbotapi.NewMessage(msg.Chat.ID, resp)
 		b.Bot.Send(m)
 		return
 	}
 
-	keyboard, err := h.services.GetInlineKeyboard(response.KeyboardKey)
-	if err != nil {
-		// logging
-		response.Msg = "Что-то пошло не так, попробуйте написать позже"
+	m := tgbotapi.NewMessage(msg.Chat.ID, response.Msg)
+	m.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false)
+
+	keyboard, _ := h.services.GetInlineKeyboard(response.KeyboardKey)
+	if keyboard != nil {
+		m.ReplyMarkup = keyboard
 	}
 
-	m := tgbotapi.NewMessage(msg.Chat.ID, response.Msg)
-	m.ReplyMarkup = keyboard
-
+	m.ParseMode = "MarkdownV2"
 	b.Bot.Send(m)
 	return
 }

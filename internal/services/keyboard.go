@@ -66,3 +66,18 @@ func (s *Service) GetInlineKeyboard(key string) (*tgbotapi.InlineKeyboardMarkup,
 
 	return &kb, nil
 }
+
+func (s *Service) NewInlineKeyboard(rows [][]struct{ Text, Data string }) *tgbotapi.InlineKeyboardMarkup {
+	rowsSlice := make([][]tgbotapi.InlineKeyboardButton, len(rows))
+
+	for _, row := range rows {
+		newRow := make([]tgbotapi.InlineKeyboardButton, len(row))
+		for _, btns := range row {
+			btn := tgbotapi.NewInlineKeyboardButtonData(btns.Text, btns.Data)
+			newRow = append(newRow, btn)
+		}
+		rowsSlice = append(rowsSlice, newRow)
+	}
+	markup := tgbotapi.NewInlineKeyboardMarkup(rowsSlice...)
+	return &markup
+}

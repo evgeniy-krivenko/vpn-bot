@@ -14,12 +14,29 @@ type TextRepository interface {
 	GetTermsByOrder(orderNum int) (*entity.Term, error)
 }
 
+type ConnectionRepository interface {
+	GetLastConnectionPortCount() (*entity.ConnectionPortCount, error)
+	CreateConnection(connection *entity.Connection) error
+	GetConnectionsByUserId(id int64) (*[]entity.Connection, error)
+}
+
+type ServerRepository interface {
+	GetAllServers() (*[]entity.Server, error)
+}
+
 type Repository interface {
 	UserRepository
 	TextRepository
+	ConnectionRepository
+	ServerRepository
 }
 
-type KeyboardService interface {
-	GetInlineKeyboardRow()
-	GetInlineKeyboardButtonData()
+type CryptoService interface {
+	Encrypt(text []byte, key []byte) ([]byte, error)
+	Decrypt(cipherText []byte, key []byte) ([]byte, error)
+	GeneratePassword(passwordLen int) string
+}
+
+type Service interface {
+	CryptoService
 }

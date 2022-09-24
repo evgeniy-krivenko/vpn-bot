@@ -11,6 +11,7 @@ type UseCase interface {
 	Start(ctx context.Context, dto *entity.User) (*usecases.Response, error)
 	Terms(ctx context.Context, id int) (*usecases.Response, error)
 	TermsConfirmed(ctx context.Context, userId int) (*usecases.Response, error)
+	GetConnections() (*usecases.Response, error)
 }
 
 type KeyboardService interface {

@@ -1,0 +1,68 @@
+package services
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"errors"
+	"io"
+	mRand "math/rand"
+)
+
+type Crypto struct {
+}
+
+func (c *Crypto) Encrypt(text []byte, key []byte) ([]byte, error) {
+	cpr, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(cpr)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+
+	return gcm.Seal(nonce, nonce, text, nil), nil
+}
+
+func (c *Crypto) Decrypt(cipherText []byte, key []byte) ([]byte, error) {
+	cpr, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(cpr)
+	if err != nil {
+		return nil, err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(cipherText) < nonceSize {
+		return nil, errors.New("ciphertext too short")
+	}
+
+	nonce, ciphertext := cipherText[:nonceSize], cipherText[nonceSize:]
+	return gcm.Open(nil, nonce, ciphertext, nil)
+}
+
+func (c *Crypto) GeneratePassword(passwordLen int) string {
+	passwordRunes := make([]rune, passwordLen)
+
+	for i := range passwordRunes {
+		passwordRunes[i] = randomRune()
+	}
+
+	return string(passwordRunes)
+}
+
+func randomRune() rune {
+	i := mRand.Intn(26)
+
+	return rune('A' + i)
+}

@@ -50,9 +50,14 @@ func main() {
 			logrus.Fatalf("error close db: %s", err.Error())
 		}
 	}()
+	// injection dependency
 	svs := services.New()
 	repos := repository.New(db)
-	usecases := usecases.NewUseCase(repos)
+	usecaseCnf := usecases.UseCaseConfig{
+		Repository: repos,
+		Service:    svs,
+	}
+	usecases := usecases.NewUseCase(usecaseCnf)
 	handlers := handler.NewHandler(usecases, svs)
 	handlers.InitHandlers()
 

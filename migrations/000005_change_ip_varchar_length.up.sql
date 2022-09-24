@@ -1,0 +1,1 @@
+ALTER TABLE servers ALTER COLUMN ip_address TYPE varchar(15);

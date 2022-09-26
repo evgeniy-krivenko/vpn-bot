@@ -32,7 +32,7 @@ func (ur *UserRepository) CreateNewUser(u *entity.User) (int, error) {
 
 func (ur *UserRepository) GetUserById(id int) *entity.User {
 	var user entity.User
-	query := fmt.Sprintf("SELECT user_id, chat_id, username, first_name, last_name, chat_type, is_terms_confirmed FROM %s WHERE user_id=$1 OR chat_id=$2;", usersTable)
+	query := fmt.Sprintf("SELECT id, user_id, chat_id, username, first_name, last_name, chat_type, is_terms_confirmed FROM %s WHERE user_id=$1 OR chat_id=$2;", usersTable)
 	err := ur.db.Get(&user, query, id, id)
 	if err != nil {
 		logrus.Errorf("[Repository] error for id {%d}: %s", id, err.Error())

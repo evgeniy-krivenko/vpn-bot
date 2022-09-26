@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/pkg/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirupsen/logrus"
@@ -12,8 +11,6 @@ import (
 func (h *Handler) Terms(ctx context.Context, cq *tgbotapi.CallbackQuery) {
 	b, _ := telegram.BotFromCtx(ctx)
 	var newMsg tgbotapi.EditMessageTextConfig
-
-	fmt.Println("terms handler")
 
 	payload := ctx.Value("queryPayload").(string)
 	id, err := strconv.Atoi(payload)

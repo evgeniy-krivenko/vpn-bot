@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/entity"
 )
@@ -27,6 +28,16 @@ func (uc *StartUseCase) Start(ctx context.Context, dto *entity.User) (*Response,
 	}
 
 	return uc.handleExistUser(ctx, user)
+}
+
+func (uc *StartUseCase) GetUserById(id int64) (*entity.User, error) {
+	user := uc.Repository.GetUserById(int(id))
+
+	if user == nil {
+		return nil, errors.New(fmt.Sprintf("user with id %d is not exists", id))
+	}
+
+	return user, nil
 }
 
 func (uc *StartUseCase) handleNewUser(ctx context.Context, dto *entity.User) (*Response, error) {

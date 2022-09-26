@@ -16,12 +16,13 @@ type TextRepository interface {
 
 type ConnectionRepository interface {
 	GetLastConnectionPortCount() (*entity.ConnectionPortCount, error)
-	CreateConnection(connection *entity.Connection) error
-	GetConnectionsByUserId(id int64) (*[]entity.Connection, error)
+	CreateConnection(connection *entity.Connection) (int, error)
+	GetConnectionsByUserId(id int64) ([]entity.Connection, error)
 }
 
 type ServerRepository interface {
-	GetAllServers() (*[]entity.Server, error)
+	GetAllServers() ([]entity.Server, error)
+	GetServerById(id int) (*entity.Server, error)
 }
 
 type Repository interface {
@@ -35,6 +36,7 @@ type CryptoService interface {
 	Encrypt(text []byte, key []byte) ([]byte, error)
 	Decrypt(cipherText []byte, key []byte) ([]byte, error)
 	GeneratePassword(passwordLen int) string
+	GenerateConfig(conn *entity.Connection) (string, error)
 }
 
 type Service interface {

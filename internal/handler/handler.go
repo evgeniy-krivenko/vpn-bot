@@ -52,7 +52,8 @@ func (h *Handler) HandleCallbackQuery(ctx context.Context, msg *tgbotapi.Message
 // InitHandlers define handlers here
 func (h *Handler) InitHandlers() {
 	h.commandHandlers = CommandOrMsgHandlers{
-		"start": h.Start,
+		"start":       h.Start,
+		"connections": h.GetConnections,
 	}
 	h.messageHandlers = CommandOrMsgHandlers{
 		getConfig:    h.GetConfig,
@@ -62,5 +63,6 @@ func (h *Handler) InitHandlers() {
 	h.callbackQueryHandlers = CallbackQueryHandlers{
 		"terms":           h.Terms,
 		"terms-confirmed": h.TermsConfirmed,
+		"create":          h.CreateConnections,
 	}
 }

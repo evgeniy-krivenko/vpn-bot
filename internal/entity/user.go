@@ -3,6 +3,7 @@ package entity
 // TODO change something db or entity - IsConfirmTerms
 
 type User struct {
+	Id             int    `db:"id"`
 	UserId         int64  `db:"user_id"`
 	Username       string `db:"username"`
 	FirstName      string `db:"first_name"`

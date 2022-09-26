@@ -1,27 +1,67 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/entity"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 type ConnectionRepository struct {
 	db *sqlx.DB
 }
 
-func (c ConnectionRepository) GetLastConnectionPortCount() (*entity.ConnectionPortCount, error) {
-	//TODO implement me
-	panic("implement me")
+func (c *ConnectionRepository) GetLastConnectionPortCount() (*entity.ConnectionPortCount, error) {
+	var cp entity.ConnectionPortCount
+	query := fmt.Sprintf(getPortWithCountSQL, connectionsTable)
+	if err := c.db.Get(&cp, query); err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &cp, nil
 }
 
-func (c ConnectionRepository) CreateConnection(connection *entity.Connection) error {
-	//TODO implement me
-	panic("implement me")
+func (c *ConnectionRepository) CreateConnection(conn *entity.Connection) (int, error) {
+	var id int
+	query := fmt.Sprintf(createConnectionSQL, connectionsTable)
+	row := c.db.QueryRowx(query, conn.Port, conn.EncryptedSecret, conn.UserId, conn.ServerId)
+	if err := row.Scan(&id); err != nil {
+		logrus.Errorf("error when creating conn: %s, conn: %v", err.Error(), conn)
+		return 0, err
+	}
+	return id, nil
 }
 
-func (c ConnectionRepository) GetConnectionsByUserId(id int64) (*[]entity.Connection, error) {
-	//TODO implement me
-	panic("implement me")
+func (c *ConnectionRepository) GetConnectionsByUserId(id int64) ([]entity.Connection, error) {
+	var connections []entity.Connection
+
+	query := fmt.Sprintf(GetConnectsByUserId, connectionsTable)
+	rows, err := c.db.Queryx(query, id)
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+			logrus.Errorf("error when closing conn: %s", err.Error())
+		}
+	}(rows)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return connections, nil
+		}
+		return nil, err
+	}
+
+	for rows.Next() {
+		var conn entity.Connection
+		if err := rows.StructScan(&conn); err != nil {
+			logrus.Errorf("error scan row to struct: %s", err.Error())
+			continue
+		}
+		connections = append(connections, conn)
+	}
+	return connections, nil
 }
 
 func NewConnectionRepository(db *sqlx.DB) *ConnectionRepository {

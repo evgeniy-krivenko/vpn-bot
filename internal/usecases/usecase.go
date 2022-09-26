@@ -4,6 +4,7 @@ type UseCase struct {
 	*StartUseCase
 	*TermsUseCase
 	*ConnectionUseCase
+	*UserUseCase
 }
 
 type UseCaseConfig struct {
@@ -18,5 +19,6 @@ func NewUseCase(cnf UseCaseConfig) *UseCase {
 		StartUseCase:      NewStartUseCase(r),
 		TermsUseCase:      NewTermsUseCase(r),
 		ConnectionUseCase: NewConnectionUseCase(r, s),
+		UserUseCase:       NewUserUseCase(r),
 	}
 }

@@ -92,6 +92,42 @@ func (c *ConnectionUseCase) CreateConnection(ctx context.Context, usr *entity.Us
 	return result, nil
 }
 
+func (c *ConnectionUseCase) OpenConnection(ctx context.Context, id int) (*ResponseWithKeys, error) {
+	conn, err := c.repo.GetConnectionById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	at := fmt.Sprintf("%d:%d %d\\-%d\\-%d",
+		conn.LastActivate.Time.Hour(),
+		conn.LastActivate.Time.Minute(),
+		conn.LastActivate.Time.Day(),
+		conn.LastActivate.Time.Month(),
+		conn.LastActivate.Time.Year())
+
+	if !conn.LastActivate.Valid {
+		at = "Не активированно"
+	}
+
+	resp := ResponseWithKeys{}
+	resp.Msg = fmt.Sprintf(ConnectionInfo, LocationFullName[conn.Location], at)
+	if conn.IsActive {
+		// TODO реализовать вычисление
+		resp.Msg += fmt.Sprintf(ConnectionTimeLeft, "12")
+	} else {
+		resp.AddRow(
+			resp.AddButton(ActivateBtn, fmt.Sprintf("activate:%d", conn.Id)),
+		)
+	}
+
+	// TODO реализовать логику удаления в отдельном методе
+	resp.AddRow(
+		resp.AddButton("Удалить", fmt.Sprintf("delete-with-confirm:%d", conn.Id)),
+	)
+
+	return &resp, nil
+}
+
 func (c *ConnectionUseCase) getResponseWithoutConnections() (*ResponseWithKeys, error) {
 	resp := ResponseWithKeys{}
 
@@ -113,11 +149,14 @@ func (c *ConnectionUseCase) getResponseWithoutConnections() (*ResponseWithKeys, 
 func (c *ConnectionUseCase) getResponseWithConnections(conns []entity.Connection) *ResponseWithKeys {
 	resp := ResponseWithKeys{}
 
-	msg := ConnectionsText
+	resp.Msg = ConnectionsText
 	for i, conn := range conns {
-		msg += fmt.Sprintf("%d\\. Location: %s, status: %s\n", i+1, conn.Location, ConnectionStatusEmoji[false])
+		btnText := fmt.Sprintf("%d. Location: %s, status: %s\n", i+1, conn.Location, ConnectionStatusEmoji[false])
+		btnAction := fmt.Sprintf("open-connection:%d", conn.Id)
+		resp.AddRow(
+			resp.AddButton(btnText, btnAction),
+		)
 	}
 
-	resp.Msg = msg
 	return &resp
 }

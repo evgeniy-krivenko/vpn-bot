@@ -18,6 +18,7 @@ type ConnectionRepository interface {
 	GetLastConnectionPortCount() (*entity.ConnectionPortCount, error)
 	CreateConnection(connection *entity.Connection) (int, error)
 	GetConnectionsByUserId(id int64) ([]entity.Connection, error)
+	GetConnectionById(id int) (*entity.Connection, error)
 }
 
 type ServerRepository interface {

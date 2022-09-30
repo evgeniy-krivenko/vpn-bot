@@ -24,6 +24,16 @@ func (c *ConnectionRepository) GetLastConnectionPortCount() (*entity.ConnectionP
 	return &cp, nil
 }
 
+func (c *ConnectionRepository) GetConnectionById(id int) (*entity.Connection, error) {
+	var conn entity.Connection
+	query := fmt.Sprintf(getAllFieldsById, connectionsTable)
+	if err := c.db.Get(&conn, query, id); err != nil {
+		return nil, err
+	}
+
+	return &conn, nil
+}
+
 func (c *ConnectionRepository) CreateConnection(conn *entity.Connection) (int, error) {
 	var id int
 	query := fmt.Sprintf(createConnectionSQL, connectionsTable)

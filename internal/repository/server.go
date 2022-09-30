@@ -35,7 +35,7 @@ func (s *ServerRepository) GetAllServers() ([]entity.Server, error) {
 
 func (s *ServerRepository) GetServerById(id int) (*entity.Server, error) {
 	var server entity.Server
-	query := fmt.Sprintf(getServerSQL, serversTable)
+	query := fmt.Sprintf(getAllFieldsById, serversTable)
 	if err := s.db.Get(&server, query, id); err != nil {
 		return nil, err
 	}

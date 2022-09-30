@@ -19,7 +19,8 @@ type TermsUseCase interface {
 type ConnectionUseCase interface {
 	GetConnections(ctx context.Context, usr *entity.User) (*usecases.ResponseWithKeys, error)
 	CreateConnection(ctx context.Context, usr *entity.User, serverId int) ([]usecases.ResponseWithKeys, error)
-	ActivateConnection(ctx context.Context, id int) error
+	// ActivateConnection(ctx context.Context, id int) error
+	OpenConnection(ctx context.Context, id int) (*usecases.ResponseWithKeys, error)
 }
 
 type UserUseCase interface {

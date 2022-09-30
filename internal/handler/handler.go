@@ -64,5 +64,6 @@ func (h *Handler) InitHandlers() {
 		"terms":           h.Terms,
 		"terms-confirmed": h.TermsConfirmed,
 		"create":          h.CreateConnections,
+		"open-connection": h.OpenConnection,
 	}
 }

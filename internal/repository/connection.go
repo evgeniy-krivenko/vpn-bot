@@ -26,7 +26,12 @@ func (c *ConnectionRepository) GetLastConnectionPortCount() (*entity.ConnectionP
 
 func (c *ConnectionRepository) GetConnectionById(id int) (*entity.Connection, error) {
 	var conn entity.Connection
-	query := fmt.Sprintf(getAllFieldsById, connectionsTable)
+	query := fmt.Sprintf(
+		`SELECT c.id, s.location, c.port, c.user_id, c.encrypted_secret, s.ip_address,
+						c.server_id, c.is_active, c.last_activate
+		FROM %s c LEFT JOIN %s s on s.id=c.server_id WHERE c.id=$1`,
+		connectionsTable,
+		serversTable)
 	if err := c.db.Get(&conn, query, id); err != nil {
 		return nil, err
 	}

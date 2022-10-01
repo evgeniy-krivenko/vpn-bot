@@ -128,6 +128,10 @@ func (c *ConnectionUseCase) OpenConnection(ctx context.Context, id int) (*Respon
 	return &resp, nil
 }
 
+func (c *ConnectionUseCase) ActivateConnection(ctx context.Context, id int) (*ResponseWithKeys, error) {
+	return nil, nil
+}
+
 func (c *ConnectionUseCase) getResponseWithoutConnections() (*ResponseWithKeys, error) {
 	resp := ResponseWithKeys{}
 

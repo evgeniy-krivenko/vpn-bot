@@ -122,3 +122,40 @@ func (h *Handler) OpenConnection(ctx context.Context, cq *tgbotapi.CallbackQuery
 	}
 	return
 }
+
+func (h *Handler) ActivateConnection(ctx context.Context, cq *tgbotapi.CallbackQuery) {
+	id, err := h.getIdFromCtx(ctx)
+	b, _ := telegram.BotFromCtx(ctx)
+
+	if err != nil {
+		logrus.Errorf("error parse id from ctx for chat id %d: %s", cq.Message.Chat.ID, err.Error())
+		resp := ErrorCommonMessage
+		m := tgbotapi.NewMessage(cq.Message.Chat.ID, resp)
+		m.ParseMode = Markdown
+		b.Bot.Send(m)
+		return
+	}
+
+	resp, err := h.useCases.ActivateConnection(ctx, id)
+	if err != nil {
+		logrus.Errorf("error to activate connection with id %d: %s", id, err.Error())
+		resp := ErrorCommonMessage
+		m := tgbotapi.NewMessage(cq.Message.Chat.ID, resp)
+		m.ParseMode = Markdown
+		b.Bot.Send(m)
+		return
+	}
+
+	m := tgbotapi.NewMessage(cq.Message.Chat.ID, resp.Msg)
+
+	keyboard := h.services.NewInlineKeyboard(resp.Keys)
+	if keyboard != nil {
+		m.ReplyMarkup = keyboard
+	}
+
+	m.ParseMode = Markdown
+	if msg, err := b.Bot.Send(m); err != nil {
+		logrus.Errorf("error to send message with id %d: %s", msg.MessageID, err.Error())
+	}
+	return
+}

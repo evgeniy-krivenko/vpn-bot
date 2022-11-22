@@ -3,7 +3,6 @@ package telegram
 import (
 	"context"
 	"errors"
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -16,58 +15,54 @@ type Handler interface {
 }
 
 type Bot struct {
-	Bot *tgbotapi.BotAPI
-	Handler
+	Bot     *tgbotapi.BotAPI
+	handler Handler
 }
 
 func NewBot(bot *tgbotapi.BotAPI, h Handler) *Bot {
-	return &Bot{Bot: bot, Handler: h}
+	return &Bot{Bot: bot, handler: h}
 }
 
-func (b *Bot) Start() error {
+func (b *Bot) Start(ctx context.Context) error {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
 	updates := b.Bot.GetUpdatesChan(updateConfig)
+	var err error
 
-	err := b.handleUpdates(updates)
-	if err != nil {
-		return err
-	}
-	return nil
+	go func() {
+		err = b.handleUpdates(ctx, updates)
+	}()
+
+	go func() {
+		<-ctx.Done()
+		b.Bot.StopReceivingUpdates()
+	}()
+
+	return err
 }
 
-func (b *Bot) handleUpdates(updates tgbotapi.UpdatesChannel) error {
+func (b *Bot) handleUpdates(ctx context.Context, updates tgbotapi.UpdatesChannel) error {
 	for update := range updates {
-		//if update.Message == nil {
-		//	fmt.Println("msg nil")
-		//	continue
-		//}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			ctxWithBot := ContextWithBot(ctx, b)
 
-		ctx := context.Background()
-		ctxWithBot := ContextWithBot(ctx, b)
+			if update.CallbackQuery != nil {
+				b.handler.HandleCallbackQuery(ctxWithBot, update.Message, update.CallbackQuery)
+				continue
+			}
 
-		if update.CallbackQuery != nil {
-			fmt.Println("cb query")
-			b.HandleCallbackQuery(ctxWithBot, update.Message, update.CallbackQuery)
-			continue
+			if update.Message.IsCommand() {
+				b.handler.HandleCommand(ctxWithBot, update.Message)
+				continue
+			}
+
+			b.handler.HandleMessage(ctxWithBot, update.Message)
 		}
-
-		if update.Message.IsCommand() {
-			b.HandleCommand(ctxWithBot, update.Message)
-			continue
-		}
-
-		b.HandleMessage(ctxWithBot, update.Message)
-
 	}
 	return nil
-}
-
-func (b *Bot) handleMessage(message *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(message.Chat.ID, message.Text)
-	msg.ReplyToMessageID = message.MessageID
-
-	b.Bot.Send(msg)
 }
 
 func ContextWithBot(ctx context.Context, b *Bot) context.Context {

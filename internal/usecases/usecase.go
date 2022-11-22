@@ -1,5 +1,7 @@
 package usecases
 
+import "github.com/evgeniy-krivenko/particius-vpn-bot/internal/logger"
+
 type UseCase struct {
 	*StartUseCase
 	*TermsUseCase
@@ -9,16 +11,18 @@ type UseCase struct {
 
 type UseCaseConfig struct {
 	Repository Repository
-	Service    Service
+	Grpc       GrpcService
+	Log        logger.Logger
 }
 
 func NewUseCase(cnf UseCaseConfig) *UseCase {
 	r := cnf.Repository
-	s := cnf.Service
+	grpc := cnf.Grpc
+	l := cnf.Log
 	return &UseCase{
 		StartUseCase:      NewStartUseCase(r),
-		TermsUseCase:      NewTermsUseCase(r),
-		ConnectionUseCase: NewConnectionUseCase(r, s),
+		TermsUseCase:      NewTermsUseCase(r, grpc),
+		ConnectionUseCase: NewConnectionUseCase(r, grpc, l),
 		UserUseCase:       NewUserUseCase(r),
 	}
 }

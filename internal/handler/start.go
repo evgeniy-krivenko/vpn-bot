@@ -16,19 +16,17 @@ func (h *Handler) Start(ctx context.Context, msg *tgbotapi.Message) {
 		FirstName: msg.From.FirstName,
 		ChatType:  msg.Chat.Type,
 	})
-
 	if err != nil {
-		// logging
-		resp := "Что\\-то пошло не так, попробуйте написать позже"
-		m := tgbotapi.NewMessage(msg.Chat.ID, resp)
-		b.Bot.Send(m)
+		h.log.WithContextReqId(ctx).
+			Errorf("error to get response from use case: %w", err)
+		h.sendSelfClearingErrMsg(ctx, msg.Chat.ID, ErrorCommonMessage)
 		return
 	}
 
-	m := tgbotapi.NewMessage(msg.Chat.ID, response.Msg)
+	m := tgbotapi.NewMessage(msg.Chat.ID, escape(response.Msg))
 	m.ReplyMarkup = tgbotapi.NewRemoveKeyboard(false)
 
-	keyboard, _ := h.services.GetInlineKeyboard(response.KeyboardKey)
+	keyboard := h.services.NewInlineKeyboard(response.Keys)
 	if keyboard != nil {
 		m.ReplyMarkup = keyboard
 	}

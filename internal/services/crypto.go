@@ -8,11 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/entity"
-	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/usecases"
 	"github.com/sirupsen/logrus"
 	"io"
 	mRand "math/rand"
 	"modernc.org/strutil"
+	"os"
 )
 
 const Method = "chacha20-ietf-poly1305"
@@ -79,7 +79,7 @@ func (c *Crypto) GenerateConfig(conn *entity.Connection) (string, error) {
 		logrus.Errorf("error decode to bytes when gen conf: %s", err.Error())
 		return "", err
 	}
-	plainSecret, err := c.Decrypt(ds, []byte(usecases.SecretKey))
+	plainSecret, err := c.Decrypt(ds, []byte(os.Getenv("SECRET_KEY")))
 	if err != nil {
 		logrus.Errorf("error decrypted when gen conf: %s", err.Error())
 		return "", err

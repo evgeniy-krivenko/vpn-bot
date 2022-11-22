@@ -8,12 +8,11 @@ import (
 )
 
 type StartUseCase interface {
-	Start(ctx context.Context, dto *entity.User) (*usecases.Response, error)
+	Start(ctx context.Context, dto *entity.User) (*usecases.ResponseWithKeys, error)
 }
 
 type TermsUseCase interface {
-	Terms(ctx context.Context, id int) (*usecases.Response, error)
-	TermsConfirmed(ctx context.Context, userId int) (*usecases.Response, error)
+	TermsConfirmed(ctx context.Context, userId int) (*usecases.ResponseWithKeys, error)
 }
 
 type ConnectionUseCase interface {
@@ -21,6 +20,8 @@ type ConnectionUseCase interface {
 	CreateConnection(ctx context.Context, usr *entity.User, serverId int) ([]usecases.ResponseWithKeys, error)
 	ActivateConnection(ctx context.Context, id int) (*usecases.ResponseWithKeys, error)
 	OpenConnection(ctx context.Context, id int) (*usecases.ResponseWithKeys, error)
+	GetConfiguration(ctx context.Context, id int) ([]usecases.ResponseWithKeys, error)
+	ShowAds(ctx context.Context, usr *entity.User, id int) (*usecases.ResponseWithKeys, error)
 }
 
 type UserUseCase interface {

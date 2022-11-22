@@ -20,3 +20,6 @@ migration-up:
 
 migration-down:
 	@migrate -path ./migrations -database $(DB_STRING) down $(n)
+
+generate-proto-api:
+	@protoc --go_out=./pkg --go_grpc_out=./pkg ./api/proto/connection.proto

@@ -1,7 +1,8 @@
 package usecases
 
 import (
-	entity "github.com/evgeniy-krivenko/particius-vpn-bot/internal/entity"
+	"github.com/evgeniy-krivenko/particius-vpn-bot/internal/entity"
+	"github.com/evgeniy-krivenko/vpn-api/gen/conn_service"
 )
 
 type UserRepository interface {
@@ -19,6 +20,8 @@ type ConnectionRepository interface {
 	CreateConnection(connection *entity.Connection) (int, error)
 	GetConnectionsByUserId(id int64) ([]entity.Connection, error)
 	GetConnectionById(id int) (*entity.Connection, error)
+	GetConnectionByServerId(id int) (*entity.Connection, error)
+	SaveConnection(conn *entity.Connection) error
 }
 
 type ServerRepository interface {
@@ -28,18 +31,8 @@ type ServerRepository interface {
 
 type Repository interface {
 	UserRepository
-	TextRepository
-	ConnectionRepository
-	ServerRepository
 }
 
-type CryptoService interface {
-	Encrypt(text []byte, key []byte) ([]byte, error)
-	Decrypt(cipherText []byte, key []byte) ([]byte, error)
-	GeneratePassword(passwordLen int) string
-	GenerateConfig(conn *entity.Connection) (string, error)
-}
-
-type Service interface {
-	CryptoService
+type GrpcService interface {
+	conn_service.ConnectionServiceClient
 }

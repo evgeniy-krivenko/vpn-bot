@@ -1,8 +1,9 @@
 package usecases
 
 type ResponseWithKeys struct {
-	Msg  string
-	Keys [][]struct{ Text, Data string }
+	Msg             string
+	Keys            [][]struct{ Text, Data string }
+	IsMessageDelete bool
 }
 
 func (r *ResponseWithKeys) AddRow(row ...struct{ Text, Data string }) {

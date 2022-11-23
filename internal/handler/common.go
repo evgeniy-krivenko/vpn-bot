@@ -52,6 +52,8 @@ func Retry(f SendFunc, retries int, delay time.Duration) SendFunc {
 			select {
 			case <-time.After(delay):
 				return tgbotapi.Message{}, err
+			default:
+				continue
 			}
 		}
 	}

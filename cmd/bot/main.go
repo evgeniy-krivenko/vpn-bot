@@ -60,26 +60,19 @@ func main() {
 
 	db.SetMaxIdleConns(50)
 
-	defer func() {
-		err := db.Close()
-		if err != nil {
-			log.Fatalf("error close db: %s", err.Error())
-		}
-	}()
-	// injection dependency
-	// получаем список серверов
-	// в цикле создаем подключения и клиенты и добавляем их в мапу по ключу, например NL: client
+	defer func() { _ = db.Close() }()
+
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
+
 	conn, err := grpc.DialContext(ctxWithTimeout, "localhost:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("error connect to grpc server %s", err.Error())
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	cs := conn_service.NewConnectionServiceClient(conn)
-
 	// inject grpc service to services
 	svs := services.New()
 	repos := repository.New(db)
